@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: refresh-slave-ports.pl,v 1.2 2006-12-17 12:04:06 dan Exp $
+# $Id: refresh-slave-ports.pl,v 1.3 2007-10-12 12:15:16 dan Exp $
 #
 # Copyright (c) 1999-2004 DVL Software
 #
@@ -105,10 +105,6 @@ foreach $porttorefresh (@PORTS) {
 
 			$port->save();
 
-			#
-			# commit everything we've done.  we don't want it falling over during
-			# the daily summary creation and then doing a rollback.
-			#
 			$dbh->commit();
 		} else {
 			print "update result is $result ******************************************\n";
