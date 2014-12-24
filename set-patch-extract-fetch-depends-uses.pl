@@ -11,6 +11,8 @@ use port;
 use DBI;
 use database;
 use utilities;
+use constants;
+use branches;
 
 my $dbh;
 
@@ -20,9 +22,15 @@ my $sql;
 my $sth;
 my @row;
 
+my $previousBranch;
+my $currentBranch  = $FreshPorts::Constants::HEAD;
+
 FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
+
+# start off on head
+FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 #
 # get a list of ports to update
@@ -31,8 +39,10 @@ $dbh = FreshPorts::Database::GetDBHandle();
 $sql = "
   SELECT ports_active.id,
          ports_active.category,
-         ports_active.name
+         ports_active.name,
+         element_pathname(ports_active.element_id) as port_pathname
     FROM ports_active
+    where categories is null
 ORDER BY category, name ";
 
 print "sql = $sql\n";
@@ -43,7 +53,7 @@ $sth->execute ||
 
 while (@row=$sth->fetchrow_array) {
 #	print "now reading @row\n";
-	push @PORTS, "$row[0]\t$row[1]\t$row[2]"
+	push @PORTS, "$row[0]\t$row[1]\t$row[2]\t$row[3]"
 }
 
 my $port = FreshPorts::Port->new($dbh);
@@ -53,23 +63,31 @@ foreach $porttorefresh (@PORTS) {
 
 	print "found $porttorefresh\n";
 
-	my ($port_id, $category_name, $port_name) = split /\t/,$porttorefresh, 3;
+	my ($port_id, $category_name, $port_name, $port_pathname) = split /\t/,$porttorefresh, 4;
+
+    $previousBranch  = $currentBranch;
+	my $currentBranch = FreshPorts::Branches::GetBranchFromPathName($port_pathname);
+#	if ($currentBranch ne $previousBranch) {
+	  print "Setting branch: '$currentBranch'\n";
+	  FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
+#    } else {
+#	  print "Setting branch not required. Staying on: '$currentBranch'\n";
+#	  }
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
 
 		# needs_refresh = 0, and fetch_files = 0
-		$result = $port->RefreshFromFiles(0, 0);
+		$result = $port->RefreshFromFiles($currentBranch, 0, 0);
 		print "has been refreshed ($result)\n";
 
-	        $port->save();
+	        $port->save($currentBranch);
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name)", 1);
 	}
 }
 
+$dbh->commit();
 $sth->finish();
 
-$dbh->commit();
 $dbh->disconnect();
-

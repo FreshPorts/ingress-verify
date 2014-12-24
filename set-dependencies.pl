@@ -59,7 +59,7 @@ foreach $porttorefresh (@PORTS) {
 	if ($port->FetchByID()) {
 	
 		# needs_refresh = 0, and fetch_files = 0
-		$result = $port->RefreshFromFiles(0, 0);
+		$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0);
 
 		if ($result == 0) {
 			$port->update_depends();

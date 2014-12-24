@@ -61,7 +61,7 @@ foreach $porttorefresh (@PORTS) {
 		my $ExistingMasterPort = $port->{master_port};
 
 		# needs_refresh = 0, and fetch_files = 0
-		$result = $port->RefreshFromFiles(0, 0);
+		$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0);
 #		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {

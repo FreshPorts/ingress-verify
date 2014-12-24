@@ -99,7 +99,7 @@ foreach $porttorefresh (@PORTS) {
 				print "that port has been deleted and will not be refreshed\n";
 				$result = 0;
 			} else {
-				$result = $port->RefreshFromFiles(1, 0); # needs refresh, don't refresh
+				$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 1, 0); # needs refresh, don't refresh
 				print "refresh attempt done ($result)\n";
 			}
 		} else {
