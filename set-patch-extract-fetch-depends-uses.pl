@@ -42,7 +42,6 @@ $sql = "
          ports_active.name,
          element_pathname(ports_active.element_id) as port_pathname
     FROM ports_active
-    where categories is null
 ORDER BY category, name ";
 
 print "sql = $sql\n";
