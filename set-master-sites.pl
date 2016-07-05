@@ -60,7 +60,7 @@ foreach $porttorefresh (@PORTS) {
 		$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0);
 		print "has been refreshed ($result)\n";
 
-		if ($result == 0 && $port->{distinfo} ne '') {
+		if ($result == 0) {
 			$sql = "update ports set master_sites = " . $dbh->quote($port->{master_sites}) .
 					" where id = $port_id";
 					
@@ -68,7 +68,7 @@ foreach $porttorefresh (@PORTS) {
 			$sth = $dbh->prepare($sql);
 			$sth->execute ||
 				FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-#			$dbh->commit();
+			$dbh->commit();
 
 		} else {
 			$dbh->rollback();
