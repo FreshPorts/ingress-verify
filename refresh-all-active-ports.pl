@@ -78,6 +78,7 @@ foreach $porttorefresh (@PORTS) {
 		print "has been refreshed ($result)\n";
 
 	    $port->save($currentBranch);
+            $dbh->commit();
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name)", 1);
 	}
