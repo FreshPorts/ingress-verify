@@ -135,7 +135,7 @@ order by C.commit_date desc";
 
 #			print "\n";
 
-			my $URL     = 'http://cvsweb.unixathome.org/cgi-bin/cvsweb.cgi/~checkout~';
+			my $URL     = 'https://cvsweb.unixathome.org/cgi-bin/cvsweb.cgi/~checkout~';
 			my $DESTDIR = '/tmp';
 			my $SRCDIR  = $commit->{'pathname'};
 			my $FILE    = $FreshPorts::Constants::FILE_MAKEFILE;
@@ -216,7 +216,7 @@ SELECT P.id,
 
 	while (my $Port = $sth->fetchrow_hashref()) {
 		print ' * * * * * *  now processing ' . $Port->{'id'} . ' => ' . $Port->{'portname'} . "\n";
-		print ' http://beta.freshports.org/' . $Port->{'portname'} . "/\n";
+		print ' https://www.freshports.org/' . $Port->{'portname'} . "/\n";
 		FetchCommitsForThisPort($dbh, $Port);
 	}
 	
