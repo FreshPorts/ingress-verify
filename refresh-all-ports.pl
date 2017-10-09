@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-all-ports.pl,v 1.1 2013-04-24 12:21:49 dan Exp $
 #

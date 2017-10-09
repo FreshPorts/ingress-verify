@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: CompareListofPortsWithDatabase.pl,v 1.2 2006-12-17 12:04:05 dan Exp $
 #

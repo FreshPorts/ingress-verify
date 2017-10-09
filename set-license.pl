@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: set-license.pl,v 1.1 2010-09-16 16:29:58 dan Exp $
 #

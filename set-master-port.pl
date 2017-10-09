@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: set-master-port.pl,v 1.1 2007-08-25 23:06:02 dan Exp $
 #

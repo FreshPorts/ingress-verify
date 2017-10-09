@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # Copyright (c) 1999-2016 Dan Langille
 #

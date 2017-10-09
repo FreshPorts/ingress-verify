@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-pkg-descr-broken.pl,v 1.1 2013-04-24 12:22:09 dan Exp $
 #

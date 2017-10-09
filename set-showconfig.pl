@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: set-showconfig.pl,v 1.1 2008-01-18 23:54:43 dan Exp $
 #

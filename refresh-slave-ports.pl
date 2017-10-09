@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: refresh-slave-ports.pl,v 1.3 2007-10-12 12:15:16 dan Exp $
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: set-ignore.pl,v 1.2 2006-12-17 12:04:06 dan Exp $
 #

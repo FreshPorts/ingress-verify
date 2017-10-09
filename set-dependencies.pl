@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # $Id: set-dependencies.pl,v 1.1 2011-02-06 14:54:28 dan Exp $
 #
