@@ -21,6 +21,9 @@ my $sql;
 my $sth;
 my @row;
 
+# we work on head, only head, in this script
+my $currentBranch  = $FreshPorts::Constants::HEAD;
+
 sub ValueHasChanged($;$) {
   my $Before = shift;
   my $After  = shift;
@@ -55,6 +58,9 @@ FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
 
+print "Setting branch: '$currentBranch'\n";
+FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
+
 #
 # get a list of ports to update
 #
@@ -73,7 +79,7 @@ $sth->execute ||
 		FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 while (@row=$sth->fetchrow_array) {
-#	print "now reading @row\n";
+	print "now reading @row\n";
 	push @PORTS, "$row[0]\t$row[1]\t$row[2]"
 }
 
@@ -91,19 +97,23 @@ foreach $porttorefresh (@PORTS) {
 	
 		my $GeneratePlist = $port->{generate_plist};
 
-		# head, needs_refresh = 0, fetch_files = 0, svn_revision is not used since needs_refresh is 0
-		$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0, '');
+		#
+		# The parameters to this function are:
+		# CommitBranch  - head : we always work on head in this function
+		# needs_refresh - 1    : yes, we are refreshing this port
+		# fetch_files   - 0    : no, do not fetch files. Work on what we have here
+		# svn_revision  - ''   : is not used since fetch_files is 0
+		#
+		$result = $port->RefreshFromFiles($currentBranch, 1, 0, '');
 		print "has been refreshed ($result)\n";
 
 		if ($result == 0) {
-			if (ValueHasChanged($GeneratePlist, $port->{generate_plist})) {
-#				print "updating " . $port->category . '/' . $port->name . "\n";
-				$sql = "update ports set generate_plist = " . $dbh->quote($port->{generate_plist}) . " where id = $port_id";
+				print "updating " . $port->{category} . '/' . $port->{name} . "\n";
+				$port->save($currentBranch);
 				$sth = $dbh->prepare($sql);
 				$sth->execute || FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
 
 				$dbh->commit();
-			}
 		} else {
 			$dbh->rollback();
 			print "update result is $result ******************************************\n";
