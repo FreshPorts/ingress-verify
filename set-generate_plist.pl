@@ -21,38 +21,9 @@ my $sql;
 my $sth;
 my @row;
 
-# we work on head, only head, in this script
+# we work on head and all branches, we are updating all active ports
+my $previousBranch;
 my $currentBranch  = $FreshPorts::Constants::HEAD;
-
-sub ValueHasChanged($;$) {
-  my $Before = shift;
-  my $After  = shift;
-
-  # if both defined, then just compare
-  if (defined($Before) && defined($After)) {
-    if ($Before ne $After) {
-       print "A != B\n";
-       return 1;
-    }
-  } else {
-    # if no longer defined, set
-    if (defined($Before) && $Before ne '' && !defined($After)) {
-       print "A not defined, but B was\n";
-       return 1;
-    } else {
-       # if now defined, set
-       if (!defined($Before) && defined($After) && $After ne '') {
-       print "B not defined, but A was\n";
-          return 1;
-       }
-    }
-  }
-
-  # this means no change:
-  # - still not defined
-  # - defined, and no change
-  return 0;
-}
 
 FreshPorts::Utilities::InitSyslog();
 
@@ -68,9 +39,10 @@ FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 $sql = "
   SELECT ports_active.id,
          ports_active.category,
-         ports_active.name
+         ports_active.name,
+         element_pathname(ports_active.element_id) as port_pathname
     FROM ports_active
-ORDER BY category, name ";
+ORDER BY category, name";
 
 print "sql = $sql\n";
 
@@ -80,7 +52,7 @@ $sth->execute ||
 
 while (@row=$sth->fetchrow_array) {
 	print "now reading @row\n";
-	push @PORTS, "$row[0]\t$row[1]\t$row[2]"
+	push @PORTS, "$row[0]\t$row[1]\t$row[2]\t$row[3]"
 }
 
 my $port = FreshPorts::Port->new($dbh);
@@ -90,13 +62,16 @@ foreach $porttorefresh (@PORTS) {
 
 	print "found $porttorefresh\n";
 
-	my ($port_id, $category_name, $port_name) = split /\t/,$porttorefresh, 3;
+	my ($port_id, $category_name, $port_name, $port_pathname) = split /\t/,$porttorefresh, 4;
+
+	$previousBranch  = $currentBranch;
+	my $currentBranch = FreshPorts::Branches::GetBranchFromPathName($port_pathname);
+	print "Setting branch: '$currentBranch'\n";
+	FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 	$port->{id} = $port_id;
 	if ($port->FetchByID()) {
 	
-		my $GeneratePlist = $port->{generate_plist};
-
 		#
 		# The parameters to this function are:
 		# CommitBranch  - head : we always work on head in this function
@@ -110,9 +85,6 @@ foreach $porttorefresh (@PORTS) {
 		if ($result == 0) {
 				print "updating " . $port->{category} . '/' . $port->{name} . "\n";
 				$port->save($currentBranch);
-				$sth = $dbh->prepare($sql);
-				$sth->execute || FreshPorts::Utilities::ReportError('warning', "Could not execute SQL $sql ... maybe invalid?", 1);
-
 				$dbh->commit();
 		} else {
 			$dbh->rollback();
