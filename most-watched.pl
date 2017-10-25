@@ -33,7 +33,7 @@ $sql = "
      AND WLE.element_id = E.id
      AND E.status       = 'A'
 GROUP BY C.name, E.name
-ORDER BY 2 desc;";
+ORDER BY 2, 1 desc;";
 
 #print "sql = $sql\n";
 
