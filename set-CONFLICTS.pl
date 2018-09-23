@@ -7,10 +7,10 @@
 
 use strict;
 use lib "../";
-use port;
+use FreshPorts::port;
 use DBI;
-use database;
-use utilities;
+use FreshPorts::database;
+use FreshPorts::utilities;
 
 my $dbh;
 
@@ -33,7 +33,6 @@ $sql = "
          ports_active.category,
          ports_active.name
     FROM ports_active
-   WHERE coalesce(conflicts, conflicts_build, conflicts_install) IS NOT NULL
 ORDER BY name ";
 
 print "sql = $sql\n";
@@ -62,6 +61,10 @@ foreach $porttorefresh (@PORTS) {
 		my $conflicts         = $port->{conflicts};
 		my $conflicts_build   = $port->{conflicts_build};
 		my $conflicts_install = $port->{conflicts_install};
+		
+		if (!defined($conflicts))         { $conflicts         = ''; }
+		if (!defined($conflicts_build))   { $conflicts_build   = ''; }
+		if (!defined($conflicts_install)) { $conflicts_install = ''; }
 
 		# needs_refresh = 0, and fetch_files = 0
 		$result = $port->RefreshFromFiles($FreshPorts::Constants::HEAD, 0, 0);
@@ -73,7 +76,7 @@ foreach $porttorefresh (@PORTS) {
 			    $conflicts_install ne $port->{conflicts_install}) {
 				$sql = "update ports set conflicts         = " . $dbh->quote($port->{conflicts})         . ",
 				                         conflicts_build   = " . $dbh->quote($port->{conflicts_build})   . ", 
-				                         conflicts_install = " . $dbh->quote($port->{conflicts_install}) . "
+				                         conflicts_install = " . $dbh->quote($port->{conflicts_install}) .
 					" where id = $port_id";
 				$sth = $dbh->prepare($sql);
 				$sth->execute ||
