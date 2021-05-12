@@ -6,8 +6,8 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    'NAME'    => 'FreshPorts::Verify',
-    'VERSION' => '2.0.0',
+    'NAME'    => 'FreshPortsVerify',
+    'VERSION' => '2.0.3,
 
     # A manually-created META.yml has all the other metadata;
     #  we don't want it overwritten
