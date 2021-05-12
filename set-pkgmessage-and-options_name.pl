@@ -8,8 +8,7 @@
 use strict;
 use FreshPorts::port;
 use DBI;
-use database;
-#use utilities;
+use FreshPorts::database;
 
 # for testing results from file existance
 use Scalar::Util qw(looks_like_number);
