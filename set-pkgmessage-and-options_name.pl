@@ -6,8 +6,7 @@
 #
 
 use strict;
-use lib "../";
-use port;
+use FreshPorts::port;
 use DBI;
 use database;
 #use utilities;
