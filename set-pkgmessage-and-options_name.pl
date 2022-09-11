@@ -67,7 +67,7 @@ foreach $porttorefresh (@PORTS) {
 	
 	my $TmpFile = FreshPorts::Utilities::TmpFileName("$category_name.$port_name.make-error");
 
-	my $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $category_name/$port_name 2>$TmpFile";
+	my $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailPortScript $REPODIR_CHROOT $category_name/$port_name 2>$TmpFile";
 	my $MakeResults = `$makecommand`;
 	# save this for later reference
 	$result = $?;
@@ -146,7 +146,7 @@ foreach $porttorefresh (@PORTS) {
                       print "but _GetRealPath() claims that file does not exist. Perhaps it is '*/work/pkg-message.server' or similar\n";
                       if (index($pkgmessagepath, '/work/') != -1 ) {
                          print "Yes, yes it does contain '/work/' - let's try a make apply-slist\n";
-                         $makecommand = "/usr/local/bin/sudo /usr/sbin/chroot -u $FreshPorts::Config::JailUser $FreshPorts::Config::JailBaseDir $FreshPorts::Config::JailApplySList $REPODIR_CHROOT $category_name/$port_name $pkgmessagepath 2>$TmpFile";
+                         $makecommand = "/usr/local/bin/sudo /usr/sbin/jexec $FreshPorts::Config::JailName $FreshPorts::Config::JailApplySList $REPODIR_CHROOT $category_name/$port_name $pkgmessagepath 2>$TmpFile";
                          print "makecommand = $makecommand\n";
                          $pkgmessage=`$makecommand`;
                          $result = $?;
@@ -155,6 +155,10 @@ foreach $porttorefresh (@PORTS) {
                          if ($result == 0) {
                            print "success, we have\n'$pkgmessage'\n";
                          }
+                         
+			# remove that error collection file
+			unlink($TmpFile);
+
                       } # in /work/
                    } # else not RealPKGMESSAGEPath
 		} # pkgmessagepath is not a number
