@@ -42,6 +42,7 @@ $sql = "
          PA.name,
          EP.pathname as port_pathname
     FROM ports_active PA JOIN element_pathname EP on PA.element_id = EP.element_id
+   WHERE EP.pathname like '/ports/head/%'
 ORDER BY category, name;
 ";
 
