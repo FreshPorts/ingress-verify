@@ -10,9 +10,9 @@ use lib "../";
 use port;
 use DBI;
 use database;
-use utilities;
+#use utilities;
 use constants;
-use branches;
+#use branches;
 
 my $dbh;
 
@@ -37,12 +37,13 @@ FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 #
 
 $sql = "
-  SELECT ports_active.id,
-         ports_active.category,
-         ports_active.name,
-         element_pathname(ports_active.element_id) as port_pathname
-    FROM ports_active
-ORDER BY category, name ";
+  SELECT PA.id,
+         PA.category,
+         PA.name,
+         EP.pathname as port_pathname
+    FROM ports_active PA JOIN element_pathname EP on PA.element_id = EP.element_id
+ORDER BY category, name;
+";
 
 print "sql = $sql\n";
 
@@ -55,7 +56,7 @@ while (@row=$sth->fetchrow_array) {
 	push @PORTS, "$row[0]\t$row[1]\t$row[2]\t$row[3]"
 }
 
-my $port = FreshPorts::Port->new($dbh);
+my $port = FreshPorts::Port->new($dbh, 'git');
 
 foreach $porttorefresh (@PORTS) {
 	my $result;
