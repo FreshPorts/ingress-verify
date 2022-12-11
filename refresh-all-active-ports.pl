@@ -25,6 +25,8 @@ my @row;
 my $previousBranch;
 my $currentBranch  = $FreshPorts::Constants::HEAD;
 
+binmode STDOUT, ":encoding(UTF-8)";
+
 FreshPorts::Utilities::InitSyslog();
 
 $dbh = FreshPorts::Database::GetDBHandle();
@@ -40,9 +42,8 @@ $sql = "
   SELECT PA.id,
          PA.category,
          PA.name,
-         EP.pathname as port_pathname
-    FROM ports_active PA JOIN element_pathname EP on PA.element_id = EP.element_id
-   WHERE EP.pathname like '/ports/head/%'
+         PA.pathname as port_pathname
+    FROM ports_active PA
 ORDER BY category, name;
 ";
 
@@ -66,10 +67,10 @@ foreach $porttorefresh (@PORTS) {
 
 	my ($port_id, $category_name, $port_name, $port_pathname) = split /\t/,$porttorefresh, 4;
 
-    $previousBranch  = $currentBranch;
+	$previousBranch  = $currentBranch;
 	my $currentBranch = FreshPorts::Branches::GetBranchFromPathName($port_pathname);
-    print "Setting branch: '$currentBranch'\n";
-    FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
+	print "Setting branch: '$currentBranch'\n";
+	FreshPorts::Branches::SetBranchInDB($dbh, $currentBranch);
 
 	$port->{id} = $port_id;
 
@@ -79,8 +80,8 @@ foreach $porttorefresh (@PORTS) {
 		$result = $port->RefreshFromFiles($currentBranch, 0, 0);
 		print "has been refreshed ($result)\n";
 
-	    $port->save($currentBranch);
-            $dbh->commit();
+		$port->save($currentBranch);
+		$dbh->commit();
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name)", 1);
 	}
