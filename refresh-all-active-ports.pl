@@ -77,11 +77,20 @@ foreach $porttorefresh (@PORTS) {
 	if ($port->FetchByID()) {
 
 		# needs_refresh = 0, and fetch_files = 0
+		
+		my $initial_test_depends = $port->{test_depends} // '';
 		$result = $port->RefreshFromFiles($currentBranch, 0, 0);
 		print "has been refreshed ($result)\n";
 
-		$port->save($currentBranch);
-		$dbh->commit();
+		my $new_test_depends = $port->{test_depends} // '';
+		# if either is defined
+		if ( $initial_test_depends ne $new_test_depends ) {
+			$dbh->begin_work();
+			$port->save($currentBranch);
+			$dbh->commit();
+		} else {
+			print "skipping update - no change in test_depends\n";
+		}
 	} else {
 		FreshPorts::Utilities::ReportError('warning', "Could not retrieve port ($port_id, $category_name, $port_name)", 1);
 	}
